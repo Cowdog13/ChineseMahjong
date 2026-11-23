@@ -8,6 +8,7 @@ import { shanten, waits } from '../engine/hand.js';
 import { LIMIT, faanValue } from '../engine/scoring.js';
 import { tileSVG } from './tileArt.js';
 import { helpHTML } from './help.js';
+import { guideHTML } from './scoringGuide.js';
 
 const HUMAN = 0;
 const BOT_NAMES = ['Lan', 'Ming', 'Wei'];
@@ -93,9 +94,10 @@ function render() {
     $(`pond-${s}`).innerHTML = ds.map((t, i) => {
       const isLast = v.lastDiscard && v.lastDiscard.tile.id === t.id && i === ds.length - 1;
       const claimable = isLast && v.phase === PHASE.CLAIM && v.actions.length;
-      return tile(t, 'sm', `${isLast ? 'last-discard fresh' : ''} ${claimable ? 'claimable' : ''}`);
+      return tile(t, 'pd', `${isLast ? 'last-discard fresh' : ''} ${claimable ? 'claimable' : ''}`);
     }).join('');
   }
+  fitPonds(v);
 
   // Center
   const turnName = v.players[v.turn]?.name;
@@ -114,6 +116,28 @@ function render() {
   $('me-exposed').innerHTML = me.melds.map((m) => meldHTML(m, 'sm')).join('') + flowersHTML(me.flowers, 'sm');
   renderHand(v, me);
   renderActions(v, me);
+}
+
+// Make discarded tiles as large as the table allows. All four ponds share one
+// size (sized for at least 12 tiles each) so they shrink gradually and evenly.
+function fitPonds(v) {
+  const maxW = window.innerWidth <= 720 ? 34 : 54;
+  let size = maxW;
+  for (let s = 0; s < 4; s++) {
+    const el = $(`pond-${s}`);
+    const n = Math.max(12, v.players[s].discards.length);
+    const W = el.clientWidth;
+    const H = el.clientHeight;
+    if (!W || !H) continue;
+    let w = size;
+    for (; w > 12; w--) {
+      const cols = Math.floor((W + 2) / (w + 2));
+      const rows = Math.ceil(n / Math.max(1, cols));
+      if (cols >= 1 && rows * (w * 1.333 + w * 0.08 + 2) <= H) break;
+    }
+    size = Math.min(size, w);
+  }
+  $('table').style.setProperty('--pond-w', `${size}px`);
 }
 
 function renderHand(v, me) {
@@ -284,7 +308,11 @@ document.addEventListener('click', (e) => {
     selectedId = suggestedId;
     render();
   }
-  if (cmd === 'help') showModal(helpHTML(LIMIT) + '<div class="row"><button data-cmd="close">Close</button></div>');
+  if (cmd === 'help') showModal(helpHTML(LIMIT) + '<div class="row"><button class="secondary" data-cmd="scoring">Scoring hands with examples</button><button data-cmd="close">Close</button></div>');
+  if (cmd === 'scoring') {
+    showModal(`${guideHTML(tile, back, LIMIT)}<div class="row"><button data-cmd="close">Close</button></div>`);
+    $('modal-card').scrollTop = 0;
+  }
   if (cmd === 'settings') showSettings();
   if (cmd === 'save-settings') {
     const f = $('modal-card');
@@ -329,7 +357,9 @@ document.addEventListener('keydown', (e) => {
 // ------------------------------------------------------------------ modals
 
 function showModal(html) {
-  $('modal-card').innerHTML = html;
+  // Dialogs that must be answered (hand results) get no close button.
+  const closable = !/data-cmd="(next-hand|confirm-new)"/.test(html) || html.includes('data-cmd="close"');
+  $('modal-card').innerHTML = (closable ? '<button class="modal-x" data-cmd="close" aria-label="Close">×</button>' : '') + html;
   $('modal').classList.remove('hidden');
 }
 function hideModal() { $('modal').classList.add('hidden'); }

@@ -105,3 +105,16 @@ test('views hide opponents\' concealed tiles', () => {
   assert.equal(v.players[1].hand, null);
   assert.equal(v.players[2].hand, null);
 });
+
+test('every scoring-guide example scores the pattern it illustrates', async () => {
+  const { GUIDE, scoreExample } = await import('../src/ui/scoringGuide.js');
+  for (const sec of GUIDE) {
+    for (const e of sec.entries) {
+      if (!e.hand) continue;
+      const sc = scoreExample(e);
+      assert.ok(sc, `${e.name}: example is not a winning hand`);
+      assert.ok(sc.items.some((i) => i.zh === e.zh), `${e.name}: got ${sc.items.map((i) => i.name).join(', ')}`);
+      if (e.limit) assert.ok(sc.limit, `${e.name} should be a limit hand`);
+    }
+  }
+});

@@ -14,6 +14,20 @@ npm start
 Then open <http://localhost:8080>. (Any static web server works too; the page uses
 JavaScript modules, so it can't be opened straight from the file system.)
 
+## Play on your phone
+
+The game is a static website (no server code), so any static host works. The simplest is GitHub Pages:
+
+1. Merge this code into the repository's default branch (or use this branch directly).
+2. On GitHub, open the repository's **Settings → Pages**. Under *Build and deployment*, choose
+   **Deploy from a branch**, pick the branch and the `/ (root)` folder, and save.
+3. After a minute the site is live at `https://<your-user>.github.io/<repo>/`. Open it on your phone.
+4. Optional: use **Share → Add to Home Screen** (iPhone, Safari) or **⋮ → Add to Home screen**
+   (Android, Chrome) to launch it full-screen like an app.
+
+GitHub Pages is free for public repositories; private repositories need a paid GitHub plan.
+Portrait orientation works best on phones.
+
 ## Rules implemented
 
 - 144 tiles: three suits, winds, dragons, and flowers/seasons (bonus tiles, auto-replaced).

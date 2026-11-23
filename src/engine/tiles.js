@@ -82,3 +82,25 @@ export function countsOf(tilesOrKinds) {
 }
 
 export const sortTiles = (tiles) => [...tiles].sort((a, b) => a.kind - b.kind || a.id - b.id);
+
+/**
+ * Parse compact notation into kinds: "123m 456p 789s EE RRR".
+ * m = Characters, p = Dots, s = Bamboo; honors E S W N, R(ed) G(reen) H (white).
+ */
+export function parseTiles(str) {
+  const out = [];
+  for (const group of str.trim().split(/\s+/).filter(Boolean)) {
+    const m = group.match(/^(\d+)([mps])$/);
+    if (m) {
+      const base = { m: 0, p: 9, s: 18 }[m[2]];
+      for (const d of m[1]) out.push(base + Number(d) - 1);
+      continue;
+    }
+    for (const ch of group) {
+      const k = { E: 27, S: 28, W: 29, N: 30, R: 31, G: 32, H: 33 }[ch];
+      if (k === undefined) throw new Error(`Bad tile notation: ${group}`);
+      out.push(k);
+    }
+  }
+  return out;
+}
