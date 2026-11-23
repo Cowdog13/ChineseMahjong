@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chinese Mahjong</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-zh">麻雀</span> Chinese Mahjong</div>
+    <div id="round-info" class="round-info"></div>
+    <nav>
+      <button data-cmd="help" class="ghost">Rules</button>
+      <button data-cmd="settings" class="ghost">Settings</button>
+      <button data-cmd="new-game" class="ghost">New game</button>
+    </nav>
+  </header>
+
+  <main id="table" class="table">
+    <section class="seat seat-top" id="seat-2"></section>
+    <section class="seat seat-left" id="seat-3"></section>
+    <section class="center">
+      <div class="pond pond-top" id="pond-2"></div>
+      <div class="pond pond-left" id="pond-3"></div>
+      <div class="center-info" id="center-info"></div>
+      <div class="pond pond-right" id="pond-1"></div>
+      <div class="pond pond-bottom" id="pond-0"></div>
+    </section>
+    <section class="seat seat-right" id="seat-1"></section>
+    <section class="seat seat-bottom" id="seat-0">
+      <div class="prompt" id="prompt"></div>
+      <div class="actions" id="actions"></div>
+      <div class="me-row">
+        <div class="me-badge" id="me-badge"></div>
+        <div class="me-exposed" id="me-exposed"></div>
+      </div>
+      <div class="hand" id="hand"></div>
+    </section>
+  </main>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" id="modal-card"></div>
+  </div>
+
+  <script type="module" src="src/ui/app.js"></script>
+</body>
+</html>
