@@ -24,7 +24,7 @@ let lastSeqSeen = 0;
 const bubbles = {}; // seat -> {text, until}
 
 function loadSettings() {
-  const defaults = { name: 'You', minFaan: 1, rounds: 1, speed: 'normal', hints: true, oneClick: false };
+  const defaults = { name: 'You', minFaan: 1, rounds: 1, speed: 'normal', hints: true, oneClick: false, hintButton: true };
   try {
     return { ...defaults, ...JSON.parse(localStorage.getItem('mahjong.settings') || '{}') };
   } catch {
@@ -84,7 +84,7 @@ function render() {
     const hand = reveal && p.hand
       ? `<div class="backs">${p.hand.map((t) => tile(t, side === 'top' ? 'sm' : 'xs')).join('')}</div>`
       : `<div class="backs">${Array.from({ length: p.handCount }, () => back('xs', side === 'side' ? 'sideways' : '')).join('')}</div>`;
-    const exposed = `<div class="exposed">${p.melds.map((m) => meldHTML(m, 'xs')).join('')}${flowersHTML(p.flowers, 'xs')}</div>`;
+    const exposed = `<div class="exposed">${p.melds.map((m) => meldHTML(m, 'om')).join('')}${flowersHTML(p.flowers, 'xs')}</div>`;
     $(`seat-${s}`).innerHTML = badgeHTML(v, s) + hand + exposed;
   }
 
@@ -113,7 +113,7 @@ function render() {
   // Me
   const me = v.players[HUMAN];
   $('me-badge').innerHTML = badgeHTML(v, HUMAN);
-  $('me-exposed').innerHTML = me.melds.map((m) => meldHTML(m, 'sm')).join('') + flowersHTML(me.flowers, 'sm');
+  $('me-exposed').innerHTML = me.melds.map((m) => meldHTML(m, 'md')).join('') + flowersHTML(me.flowers, 'sm');
   renderHand(v, me);
   renderActions(v, me);
 }
@@ -182,7 +182,7 @@ function renderActions(v, me) {
       if (a.type === 'kong') buttons.push(`<button data-act='${JSON.stringify({ type: 'kong', kind: a.kind })}'><span class="zh">槓</span> Kong <span class="mini">${tile(a.kind)}</span></button>`);
     }
     if (selectedId !== null) buttons.push(`<button data-cmd="discard">Discard</button>`);
-    buttons.push(`<button class="secondary" data-cmd="hint">Hint</button>`);
+    if (settings.hintButton) buttons.push(`<button class="secondary" data-cmd="hint">Hint</button>`);
 
     const sel = me.hand.find((t) => t.id === selectedId);
     if (sel) {
@@ -301,7 +301,7 @@ document.addEventListener('click', (e) => {
   const cmd = btn.dataset.cmd;
   if (!cmd) return;
   if (cmd === 'discard' && selectedId !== null) humanAct({ type: 'discard', tileId: selectedId });
-  if (cmd === 'hint') {
+  if (cmd === 'hint' && settings.hintButton) {
     const v = game.view(HUMAN);
     const best = chooseDiscard(v);
     suggestedId = best?.tileId ?? null;
@@ -322,6 +322,8 @@ document.addEventListener('click', (e) => {
     settings.speed = f.querySelector('[name=speed]').value;
     settings.hints = f.querySelector('[name=hints]').checked;
     settings.oneClick = f.querySelector('[name=oneClick]').checked;
+    settings.hintButton = f.querySelector('[name=hintButton]').checked;
+    if (!settings.hintButton) suggestedId = null;
     saveSettings();
     if (btn.dataset.restart) newGame();
     else { game.players[HUMAN].name = settings.name; hideModal(); render(); }
@@ -375,6 +377,7 @@ function showSettings() {
     <label>Opponent speed
       <select name="speed">${opt('slow', settings.speed, 'Slow')}${opt('normal', settings.speed, 'Normal')}${opt('fast', settings.speed, 'Fast')}</select></label>
     <label>Show number/wind hints on tiles <input type="checkbox" name="hints" ${settings.hints ? 'checked' : ''}></label>
+    <label>Show the Hint button (suggests a discard) <input type="checkbox" name="hintButton" ${settings.hintButton ? 'checked' : ''}></label>
     <label>Discard with a single click <input type="checkbox" name="oneClick" ${settings.oneClick ? 'checked' : ''}></label>
     <p><small>Minimum faan and game length apply when a new game starts.</small></p>
     <div class="row">

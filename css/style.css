@@ -14,6 +14,8 @@
   --tw: clamp(28px, min(5vw, 7.4vh), 68px); /* hand tile width */
   --sw: clamp(17px, min(2.3vw, 3.7vh), 32px); /* small tile width */
   --bw: clamp(12px, min(1.7vw, 2.8vh), 22px); /* opponents' tile backs */
+  --mw: clamp(24px, min(3.4vw, 5.4vh), 48px); /* your claimed sets */
+  --ow: clamp(18px, min(2.6vw, 4.2vh), 38px); /* opponents' claimed sets */
 }
 
 * { box-sizing: border-box; }
@@ -136,6 +138,8 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .tile.lg { --w: var(--tw); }
 .tile.sm { --w: var(--sw); }
 .tile.xs { --w: var(--bw); }
+.tile.md { --w: var(--mw); }
+.tile.om { --w: var(--ow); }
 .tile.pd { --w: var(--pond-w, var(--sw)); }
 .tile.back {
   background: linear-gradient(160deg, var(--tile-back), var(--tile-back-2));
@@ -268,10 +272,13 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
     --tw: min(6.6vw, 44px);
     --sw: min(4.6vw, 24px);
     --bw: min(3vw, 14px);
+    --mw: min(6.2vw, 30px);
+    --ow: min(4.6vw, 19px);
   }
+  .seat-left .meld, .seat-right .meld { flex-wrap: wrap; justify-content: center; max-width: 100%; }
   .brand { display: none; }
   .round-info { text-align: left; }
-  .table { grid-template-columns: 46px minmax(0, 1fr) 46px; padding: .3rem 16px .4rem; gap: .25rem; }
+  .table { grid-template-columns: 60px minmax(0, 1fr) 60px; padding: .3rem 16px .4rem; gap: .25rem; }
   .center { grid-template-columns: minmax(0, 1fr) minmax(92px, 1.4fr) minmax(0, 1fr); padding: .3rem; }
   .seat-left .badge .name, .seat-right .badge .name { max-width: 50px; overflow: hidden; text-overflow: ellipsis; font-size: .8em; }
   .topbar { padding: .3rem 10px; padding-top: max(.3rem, env(safe-area-inset-top)); gap: .4rem; }
