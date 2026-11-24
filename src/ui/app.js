@@ -72,10 +72,14 @@ function badgeHTML(v, s) {
   const p = v.players[s];
   const active = v.waitingOn?.includes(s) || (v.phase === PHASE.DISCARD && v.turn === s);
   const bubble = bubbles[s] && bubbles[s].until > Date.now() ? `<div class="bubble">${bubbles[s].text}</div>` : '';
+  const dealer = s === v.dealer;
   return `<div class="badge ${active ? 'active' : ''}">
     ${bubble}
-    <span class="wind ${s === v.dealer ? 'dealer' : ''}" title="${WIND_NAMES[p.seatWind]} seat${s === v.dealer ? ' (dealer)' : ''}">${WIND_ZH[p.seatWind]}</span>
-    <span class="name">${esc(p.name)}</span>
+    <span class="wind ${dealer ? 'dealer' : ''}" title="${WIND_NAMES[p.seatWind]} seat${dealer ? ' (dealer)' : ''}">${WIND_ZH[p.seatWind]}</span>
+    <span class="who">
+      <span class="name">${esc(p.name)}</span>
+      <span class="seat-label">${WIND_NAMES[p.seatWind]} seat${dealer ? ' · Dealer' : ''}</span>
+    </span>
     <span class="score">${p.score}</span>
   </div>`;
 }
@@ -87,7 +91,7 @@ function render() {
   v.waitingOn = game.waitingOn();
   const reveal = v.phase === PHASE.HAND_OVER || v.phase === PHASE.GAME_OVER;
 
-  $('round-info').textContent = `${WIND_NAMES[v.roundWind]} round · Hand ${v.handNumber} · Min ${v.minFaan} faan`;
+  $('round-info').textContent = `${WIND_NAMES[v.roundWind]} round · Hand ${v.handNumber} · You sit ${WIND_NAMES[v.players[HUMAN].seatWind]} · Min ${v.minFaan} faan`;
 
   // Opponents
   for (const s of [1, 2, 3]) {
@@ -96,7 +100,7 @@ function render() {
     const hand = reveal && p.hand
       ? `<div class="backs">${p.hand.map((t) => tile(t, side === 'top' ? 'sm' : 'xs')).join('')}</div>`
       : `<div class="backs">${Array.from({ length: p.handCount }, () => back('xs', side === 'side' ? 'sideways' : '')).join('')}</div>`;
-    const exposed = `<div class="exposed">${p.melds.map((m) => meldHTML(m, 'lg')).join('')}${flowersHTML(p.flowers, 'xs')}</div>`;
+    const exposed = `<div class="exposed">${p.melds.map((m) => meldHTML(m, 'lg')).join('')}${flowersHTML(p.flowers, 'fl')}</div>`;
     $(`seat-${s}`).innerHTML = badgeHTML(v, s) + hand + exposed;
   }
 
@@ -116,17 +120,24 @@ function render() {
   if (v.phase === PHASE.DISCARD) status = v.turn === HUMAN ? 'Your turn' : `${esc(turnName)} is thinking…`;
   else if (v.phase === PHASE.CLAIM || v.phase === PHASE.ROB_KONG) status = v.actions.length ? 'Claim?' : 'Waiting for claims…';
   else if (v.phase === PHASE.HAND_OVER) status = 'Hand over';
+  const mySeat = v.players[HUMAN].seatWind;
   $('center-info').innerHTML = `
-    <div class="round" title="Prevailing wind">${WIND_ZH[v.roundWind]}風 <small>${WIND_NAMES[v.roundWind]}</small></div>
+    <div class="winds">
+      <div class="wind-box" title="The prevailing (round) wind. A Pung of this wind scores 1 faan for everyone.">
+        <span class="lbl">Round wind</span><span class="big">${WIND_ZH[v.roundWind]}</span><span class="en">${WIND_NAMES[v.roundWind]}</span>
+      </div>
+      <div class="wind-box mine" title="Your seat wind. A Pung of this wind scores 1 faan for you.">
+        <span class="lbl">Your seat</span><span class="big">${WIND_ZH[mySeat]}</span><span class="en">${WIND_NAMES[mySeat]}</span>
+      </div>
+    </div>
     <div class="wall">${v.wallCount} tiles left</div>
     <div class="status">${status}</div>`;
 
   // Me
   const me = v.players[HUMAN];
   $('me-badge').innerHTML = badgeHTML(v, HUMAN);
-  // Your claimed sets use the same tile size as your hand.
-  $('me-exposed').innerHTML = me.melds.map((m) => meldHTML(m, 'lg')).join('');
-  $('me-flowers').innerHTML = flowersHTML(me.flowers, 'sm');
+  // Your claimed sets and flowers sit in a tray above your hand, at hand-tile size.
+  $('me-exposed').innerHTML = me.melds.map((m) => meldHTML(m, 'lg')).join('') + flowersHTML(me.flowers, 'fl');
   renderHand(v, me);
   renderActions(v, me);
   fitPonds(v); // last, once everything around the table has its final size
@@ -455,3 +466,6 @@ function showGameOver() {
 
 window.addEventListener('resize', () => render());
 newGame();
+
+// Handle for debugging and automated layout tests in the browser console.
+window.mahjong = { get game() { return game; }, render };

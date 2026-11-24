@@ -11,7 +11,7 @@
   --tile-back: #1c7a55;
   --tile-back-2: #136043;
   --panel: rgba(4, 30, 20, .78);
-  --tw: clamp(20px, min(calc((100vw - 48px) / 15.6), 9.6vh), 104px); /* hand tile width: 14 tiles + drawn-tile gap always fit */
+  --tw: clamp(20px, min(calc((100vw - 64px) / 21.6), 9vh), 104px); /* hand tile width: the hand plus two side columns always fit */
   --sw: clamp(17px, min(2.4vw, 4.2vh), 42px); /* small tile width */
   --bw: clamp(12px, min(1.8vw, 3.2vh), 30px); /* opponents' tile backs */
 }
@@ -69,10 +69,11 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
   /* side columns fit one claimed set at full hand-tile size */
   grid-template-columns: calc(var(--tw) * 3 + 14px) minmax(0, 1fr) calc(var(--tw) * 3 + 14px);
   grid-template-rows: auto minmax(0, 1fr) auto;
+  /* left and right players use the full height so their claimed sets fit */
   grid-template-areas:
-    "top top top"
+    "left top right"
     "left center right"
-    "bottom bottom bottom";
+    "left bottom right";
   gap: .4rem;
   padding: .4rem .6rem .5rem;
 }
@@ -105,6 +106,9 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 }
 .badge .wind.dealer { background: var(--red); color: #fff; }
 .badge .name { font-weight: 650; }
+.badge .who { display: flex; flex-direction: column; line-height: 1.15; }
+.badge .seat-label { font-size: .75em; color: var(--muted); }
+.seat-left .badge .who, .seat-right .badge .who { align-items: center; text-align: center; }
 .badge .score { color: var(--gold); font-variant-numeric: tabular-nums; }
 .seat-left .badge, .seat-right .badge { flex-direction: column; gap: .1rem; padding: .35rem .5rem; }
 
@@ -137,6 +141,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .tile.lg { --w: var(--tw); }
 .tile.sm { --w: var(--sw); }
 .tile.xs { --w: var(--bw); }
+.tile.fl { --w: calc(var(--tw) * .7); } /* flowers & seasons: bonus tiles, a little smaller */
 .tile.pd { --w: var(--pond-w, var(--sw)); }
 .tile.back {
   background: linear-gradient(160deg, var(--tile-back), var(--tile-back-2));
@@ -162,8 +167,17 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 }
 .hand .tile.dim { filter: brightness(.82); }
 
-.hand-row { display: flex; justify-content: center; align-items: flex-end; flex-wrap: wrap; gap: .4rem calc(var(--tw) * .45); }
-.hand-row .me-exposed { gap: calc(var(--tw) * .18); flex-wrap: wrap; padding-bottom: calc(var(--tw) * .12); }
+.hand-row { display: flex; flex-direction: column-reverse; align-items: center; gap: .35rem; }
+/* your claimed sets and flowers: a darker tray above the hand so they read as "on the table" */
+.hand-row .me-exposed {
+  gap: calc(var(--tw) * .2); flex-wrap: wrap; justify-content: center; align-items: flex-end;
+  background: rgba(0, 0, 0, .2); border: 1px solid var(--felt-line); border-radius: 12px;
+  padding: .3rem .6rem calc(var(--tw) * .14);
+}
+.hand-row .me-exposed::before {
+  content: "Claimed"; align-self: center; color: var(--muted); font-size: .75em;
+  letter-spacing: .06em; text-transform: uppercase; writing-mode: vertical-rl; transform: rotate(180deg);
+}
 .hand-row .me-exposed:empty { display: none; }
 /* one row under the table: your badge, flowers, the prompt and the action buttons */
 .me-row { display: flex; align-items: center; justify-content: center; gap: .4rem .9rem; flex-wrap: wrap; min-height: max(2.6em, calc(var(--sw) * 1.4)); }
@@ -174,7 +188,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .meld.xs { --w: var(--bw); }
 .meld.kong { padding-top: calc(var(--w) * .4); }
 .meld .tile.stacked { position: absolute; top: 0; left: calc(var(--w) + 2px); box-shadow: 0 calc(var(--w) * .06) calc(var(--w) * .18) rgba(0,0,0,.45); }
-.flowers { display: flex; gap: 1px; padding-left: .2rem; }
+.flowers { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; }
 .seat-left .exposed, .seat-right .exposed { flex-direction: column; align-items: center; }
 
 .backs { display: flex; gap: 1px; }
@@ -184,12 +198,13 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 /* --- center ---------------------------------------------------------------- */
 .center {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(130px, 1.25fr) minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+  /* top/bottom discard piles span the full width; left/right piles sit beside the wind panel */
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(7.8em, 1fr) minmax(0, 1fr);
   grid-template-areas:
-    "left  top    right"
-    "left  info   right"
-    "left  bottom right";
+    "top   top  top"
+    "left  info right"
+    "bottom bottom bottom";
   gap: .4rem;
   min-height: 0;
   background: rgba(0,0,0,.12);
@@ -204,15 +219,20 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .pond-right { grid-area: right; justify-content: flex-end; align-content: center; }
 .center-info {
   grid-area: info;
+  align-self: center;
   background: var(--panel);
   border-radius: 14px;
   padding: .5rem .8rem;
   text-align: center;
   border: 1px solid var(--felt-line);
 }
-.center-info .round { font-family: "Noto Serif TC", serif; font-size: 1.4em; color: var(--gold); }
+.center-info .winds { display: flex; justify-content: center; gap: .5rem; margin-bottom: .3rem; }
+.wind-box { display: grid; grid-template-columns: auto auto; align-items: center; column-gap: .35rem; padding: .2rem .6rem; border-radius: 10px; background: rgba(255,255,255,.06); }
+.wind-box .lbl { grid-column: 1 / -1; font-size: .7em; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.wind-box .big { font-family: "Noto Serif TC", serif; font-size: 1.6em; color: var(--gold); line-height: 1.1; }
+.wind-box .en { font-weight: 650; }
+.wind-box.mine .big { color: #fff; }
 .center-info .wall { font-variant-numeric: tabular-nums; color: var(--muted); font-size: .9em; }
-.center-info .round small { font-family: system-ui, sans-serif; font-size: .55em; }
 .center-info .status { font-size: .85em; margin-top: .2rem; min-height: 1.4em; }
 
 /* --- action bar ------------------------------------------------------------ */
@@ -281,18 +301,29 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
     --sw: min(4.6vw, 24px);
     --bw: min(3vw, 14px);
   }
-  .hand-row { flex-direction: column-reverse; align-items: center; }
+  /* phones: top and bottom players span the full width */
+  .table { grid-template-areas: "top top top" "left center right" "bottom bottom bottom"; }
   .brand { display: none; }
   .round-info { text-align: left; }
   .table { grid-template-columns: calc(var(--tw) * 3 + 8px) minmax(0, 1fr) calc(var(--tw) * 3 + 8px); padding: .3rem 16px .4rem; gap: .25rem; }
-  .center { grid-template-columns: minmax(0, 1fr) minmax(92px, 1.4fr) minmax(0, 1fr); padding: .3rem; }
+  .center {
+    grid-template-columns: minmax(0, 1fr) minmax(92px, 1.4fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-areas: "left top right" "left info right" "left bottom right";
+    padding: .3rem;
+  }
   .seat-left .badge .name, .seat-right .badge .name { max-width: 50px; overflow: hidden; text-overflow: ellipsis; font-size: .8em; }
   .topbar { padding: .3rem 10px; padding-top: max(.3rem, env(safe-area-inset-top)); gap: .4rem; }
   .topbar nav { gap: .25rem; }
   .topbar nav button { padding: .25em .45em; font-size: .78em; }
   .round-info { font-size: .75em; }
   .table { padding-bottom: max(.4rem, env(safe-area-inset-bottom)); }
-  .center-info .round small { display: none; }
+  .center-info .winds { flex-direction: column; gap: .2rem; }
+  .wind-box { padding: .1rem .4rem; }
+  .wind-box .big { font-size: 1.2em; }
+  .wind-box .lbl { font-size: .62em; }
+  .badge .seat-label { font-size: .68em; }
+  .hand-row .me-exposed::before { display: none; }
 }
 
 /* --- large screens: scale the text up with the tiles ---------------------- */
