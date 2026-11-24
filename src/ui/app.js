@@ -109,7 +109,6 @@ function render() {
       return tile(t, 'pd', `${isLast ? 'last-discard fresh' : ''} ${claimable ? 'claimable' : ''}`);
     }).join('');
   }
-  fitPonds(v);
 
   // Center
   const turnName = v.players[v.turn]?.name;
@@ -130,12 +129,15 @@ function render() {
   $('me-flowers').innerHTML = flowersHTML(me.flowers, 'sm');
   renderHand(v, me);
   renderActions(v, me);
+  fitPonds(v); // last, once everything around the table has its final size
 }
 
 // Make discarded tiles as large as the table allows. All four ponds share one
 // size (sized for at least 12 tiles each) so they shrink gradually and evenly.
 function fitPonds(v) {
-  const maxW = window.innerWidth <= 720 ? 34 : 54;
+  // Discards can grow to almost the size of your hand tiles.
+  const handTile = document.querySelector('#hand .tile');
+  const maxW = Math.max(20, Math.round((handTile ? handTile.offsetWidth : 54) * 0.82));
   let size = maxW;
   for (let s = 0; s < 4; s++) {
     const el = $(`pond-${s}`);
@@ -145,7 +147,7 @@ function fitPonds(v) {
     if (!W || !H) continue;
     let w = size;
     for (; w > 12; w--) {
-      const cols = Math.floor((W + 2) / (w + 2));
+      const cols = Math.floor((W + 1) / (w + 2)); // 1px slack for sub-pixel rounding
       const rows = Math.ceil(n / Math.max(1, cols));
       if (cols >= 1 && rows * (w * 1.333 + w * 0.08 + 2) <= H) break;
     }

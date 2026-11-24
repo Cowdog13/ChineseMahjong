@@ -11,9 +11,9 @@
   --tile-back: #1c7a55;
   --tile-back-2: #136043;
   --panel: rgba(4, 30, 20, .78);
-  --tw: clamp(20px, min(calc((100vw - 48px) / 15.6), 7.4vh), 68px); /* 14 tiles + drawn-tile gap always fit */ /* hand tile width */
-  --sw: clamp(17px, min(2.3vw, 3.7vh), 32px); /* small tile width */
-  --bw: clamp(12px, min(1.7vw, 2.8vh), 22px); /* opponents' tile backs */
+  --tw: clamp(20px, min(calc((100vw - 48px) / 15.6), 9.6vh), 104px); /* hand tile width: 14 tiles + drawn-tile gap always fit */
+  --sw: clamp(17px, min(2.4vw, 4.2vh), 42px); /* small tile width */
+  --bw: clamp(12px, min(1.8vw, 3.2vh), 30px); /* opponents' tile backs */
 }
 
 * { box-sizing: border-box; }
@@ -165,7 +165,8 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .hand-row { display: flex; justify-content: center; align-items: flex-end; flex-wrap: wrap; gap: .4rem calc(var(--tw) * .45); }
 .hand-row .me-exposed { gap: calc(var(--tw) * .18); flex-wrap: wrap; padding-bottom: calc(var(--tw) * .12); }
 .hand-row .me-exposed:empty { display: none; }
-.me-row { display: flex; align-items: center; justify-content: center; gap: .8rem; flex-wrap: wrap; min-height: calc(var(--sw) * 1.4); }
+/* one row under the table: your badge, flowers, the prompt and the action buttons */
+.me-row { display: flex; align-items: center; justify-content: center; gap: .4rem .9rem; flex-wrap: wrap; min-height: max(2.6em, calc(var(--sw) * 1.4)); }
 .me-exposed, .exposed { display: flex; gap: .45rem; flex-wrap: wrap; align-items: flex-end; justify-content: center; }
 .meld { display: flex; gap: 2px; position: relative; align-items: flex-end; }
 .meld.lg { --w: var(--tw); }
@@ -215,9 +216,10 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .center-info .status { font-size: .85em; margin-top: .2rem; min-height: 1.4em; }
 
 /* --- action bar ------------------------------------------------------------ */
-.prompt { text-align: center; color: var(--muted); font-size: .9em; min-height: 1.3em; }
+.prompt { text-align: center; color: var(--muted); font-size: .95em; max-width: 46ch; }
+.prompt:empty, .actions:empty { display: none; }
 .prompt strong { color: var(--ink); }
-.actions { display: flex; justify-content: center; gap: .5rem; flex-wrap: wrap; min-height: 2.4em; }
+.actions { display: flex; justify-content: center; gap: .5rem; flex-wrap: wrap; }
 .actions button { display: inline-flex; align-items: center; gap: .4em; }
 .actions button .zh { font-family: "Noto Serif TC", serif; }
 .actions .mini { display: inline-flex; gap: 1px; }
@@ -291,4 +293,9 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
   .round-info { font-size: .75em; }
   .table { padding-bottom: max(.4rem, env(safe-area-inset-bottom)); }
   .center-info .round small { display: none; }
+}
+
+/* --- large screens: scale the text up with the tiles ---------------------- */
+@media (min-width: 1600px) and (min-height: 820px) {
+  body { font-size: 17px; }
 }
