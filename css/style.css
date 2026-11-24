@@ -14,8 +14,6 @@
   --tw: clamp(28px, min(5vw, 7.4vh), 68px); /* hand tile width */
   --sw: clamp(17px, min(2.3vw, 3.7vh), 32px); /* small tile width */
   --bw: clamp(12px, min(1.7vw, 2.8vh), 22px); /* opponents' tile backs */
-  --mw: clamp(24px, min(3.4vw, 5.4vh), 48px); /* your claimed sets */
-  --ow: clamp(18px, min(2.6vw, 4.2vh), 38px); /* opponents' claimed sets */
 }
 
 * { box-sizing: border-box; }
@@ -68,7 +66,8 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(70px, 1fr) minmax(0, 4.2fr) minmax(70px, 1fr);
+  /* side columns fit one claimed set at full hand-tile size */
+  grid-template-columns: calc(var(--tw) * 3 + 14px) minmax(0, 1fr) calc(var(--tw) * 3 + 14px);
   grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
     "top top top"
@@ -138,8 +137,6 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .tile.lg { --w: var(--tw); }
 .tile.sm { --w: var(--sw); }
 .tile.xs { --w: var(--bw); }
-.tile.md { --w: var(--mw); }
-.tile.om { --w: var(--ow); }
 .tile.pd { --w: var(--pond-w, var(--sw)); }
 .tile.back {
   background: linear-gradient(160deg, var(--tile-back), var(--tile-back-2));
@@ -165,14 +162,23 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 }
 .hand .tile.dim { filter: brightness(.82); }
 
+.hand-row { display: flex; justify-content: center; align-items: flex-end; flex-wrap: wrap; gap: .4rem calc(var(--tw) * .45); }
+.hand-row .me-exposed { gap: calc(var(--tw) * .18); flex-wrap: wrap; padding-bottom: calc(var(--tw) * .12); }
+.hand-row .me-exposed:empty { display: none; }
 .me-row { display: flex; align-items: center; justify-content: center; gap: .8rem; flex-wrap: wrap; min-height: calc(var(--sw) * 1.4); }
 .me-exposed, .exposed { display: flex; gap: .45rem; flex-wrap: wrap; align-items: flex-end; justify-content: center; }
-.meld { display: flex; gap: 1px; }
+.meld { display: flex; gap: 2px; position: relative; align-items: flex-end; }
+.meld.lg { --w: var(--tw); }
+.meld.sm { --w: var(--sw); }
+.meld.xs { --w: var(--bw); }
+.meld.kong { padding-top: calc(var(--w) * .4); }
+.meld .tile.stacked { position: absolute; top: 0; left: calc(var(--w) + 2px); box-shadow: 0 calc(var(--w) * .06) calc(var(--w) * .18) rgba(0,0,0,.45); }
 .flowers { display: flex; gap: 1px; padding-left: .2rem; }
 .seat-left .exposed, .seat-right .exposed { flex-direction: column; align-items: center; }
 
 .backs { display: flex; gap: 1px; }
-.seat-left .backs, .seat-right .backs { flex-direction: column; }
+/* Side opponents' concealed tiles are packed into a small block, leaving room for their sets. */
+.seat-left .backs, .seat-right .backs { display: grid; grid-template-columns: repeat(3, auto); justify-content: center; }
 
 /* --- center ---------------------------------------------------------------- */
 .center {
@@ -272,13 +278,11 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
     --tw: min(6.6vw, 44px);
     --sw: min(4.6vw, 24px);
     --bw: min(3vw, 14px);
-    --mw: min(6.2vw, 30px);
-    --ow: min(4.6vw, 19px);
   }
-  .seat-left .meld, .seat-right .meld { flex-wrap: wrap; justify-content: center; max-width: 100%; }
+  .hand-row { flex-direction: column-reverse; align-items: center; }
   .brand { display: none; }
   .round-info { text-align: left; }
-  .table { grid-template-columns: 60px minmax(0, 1fr) 60px; padding: .3rem 16px .4rem; gap: .25rem; }
+  .table { grid-template-columns: calc(var(--tw) * 3 + 8px) minmax(0, 1fr) calc(var(--tw) * 3 + 8px); padding: .3rem 16px .4rem; gap: .25rem; }
   .center { grid-template-columns: minmax(0, 1fr) minmax(92px, 1.4fr) minmax(0, 1fr); padding: .3rem; }
   .seat-left .badge .name, .seat-right .badge .name { max-width: 50px; overflow: hidden; text-overflow: ellipsis; font-size: .8em; }
   .topbar { padding: .3rem 10px; padding-top: max(.3rem, env(safe-area-inset-top)); gap: .4rem; }

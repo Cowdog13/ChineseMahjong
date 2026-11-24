@@ -43,13 +43,25 @@ const back = (size = 'sm', cls = '') => `<div class="tile ${size} back ${cls}"><
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const signed = (n) => (n > 0 ? `+${n}` : `${n}`);
 
+// A Kong is drawn the traditional way: three tiles with the fourth stacked on
+// the middle one, so it takes no more width than a Pung.
 function meldHTML(m, size) {
-  if (m.type === 'kong' && m.concealed) {
-    // Concealed kongs show the outer two tiles face down; opponents' are fully hidden.
-    if (!m.tiles) return `<div class="meld">${back(size)}${back(size)}${back(size)}${back(size)}</div>`;
-    return `<div class="meld">${back(size)}${tile(m.tiles[1], size)}${tile(m.tiles[2], size)}${back(size)}</div>`;
+  if (m.type === 'kong') {
+    let row;
+    let top;
+    if (!m.tiles) { // an opponent's concealed kong: fully hidden
+      row = [back(size), back(size), back(size)];
+      top = back(size, 'stacked');
+    } else if (m.concealed) { // your concealed kong: two face down, two face up
+      row = [back(size), tile(m.tiles[1], size), back(size)];
+      top = tile(m.tiles[2], size, 'stacked');
+    } else {
+      row = m.tiles.slice(0, 3).map((t) => tile(t, size));
+      top = tile(m.tiles[3], size, 'stacked');
+    }
+    return `<div class="meld kong ${size}">${row.join('')}${top}</div>`;
   }
-  return `<div class="meld">${m.tiles.map((t) => tile(t, size)).join('')}</div>`;
+  return `<div class="meld ${size}">${m.tiles.map((t) => tile(t, size)).join('')}</div>`;
 }
 
 function flowersHTML(fl, size) {
@@ -84,7 +96,7 @@ function render() {
     const hand = reveal && p.hand
       ? `<div class="backs">${p.hand.map((t) => tile(t, side === 'top' ? 'sm' : 'xs')).join('')}</div>`
       : `<div class="backs">${Array.from({ length: p.handCount }, () => back('xs', side === 'side' ? 'sideways' : '')).join('')}</div>`;
-    const exposed = `<div class="exposed">${p.melds.map((m) => meldHTML(m, 'om')).join('')}${flowersHTML(p.flowers, 'xs')}</div>`;
+    const exposed = `<div class="exposed">${p.melds.map((m) => meldHTML(m, 'lg')).join('')}${flowersHTML(p.flowers, 'xs')}</div>`;
     $(`seat-${s}`).innerHTML = badgeHTML(v, s) + hand + exposed;
   }
 
@@ -113,7 +125,9 @@ function render() {
   // Me
   const me = v.players[HUMAN];
   $('me-badge').innerHTML = badgeHTML(v, HUMAN);
-  $('me-exposed').innerHTML = me.melds.map((m) => meldHTML(m, 'md')).join('') + flowersHTML(me.flowers, 'sm');
+  // Your claimed sets use the same tile size as your hand.
+  $('me-exposed').innerHTML = me.melds.map((m) => meldHTML(m, 'lg')).join('');
+  $('me-flowers').innerHTML = flowersHTML(me.flowers, 'sm');
   renderHand(v, me);
   renderActions(v, me);
 }
