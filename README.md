@@ -21,10 +21,12 @@ The game is a static website (no server code), so any static host works. The sim
 1. Merge this code into the repository's default branch (or use this branch directly).
 2. On GitHub, open the repository's **Settings → Pages**. Under *Build and deployment*, choose
    **Deploy from a branch**, pick the branch and the `/ (root)` folder, and save.
-3. After a minute the site is live at `https://<your-user>.github.io/<repo>/`. Open it on your phone.
+3. After a minute the site is live at `https://<your-user>.github.io/<repo>/` (for this repository:
+   <https://cowdog13.github.io/ChineseMahjong/>). Open it on your phone.
 4. Optional: use **Share → Add to Home Screen** (iPhone, Safari) or **⋮ → Add to Home screen**
    (Android, Chrome) to launch it full-screen like an app.
 
+The empty `.nojekyll` file tells GitHub to serve the files as they are, without its Jekyll build step.
 GitHub Pages is free for public repositories; private repositories need a paid GitHub plan.
 Portrait orientation works best on phones.
 
