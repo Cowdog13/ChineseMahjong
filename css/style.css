@@ -11,7 +11,7 @@
   --tile-back: #1c7a55;
   --tile-back-2: #136043;
   --panel: rgba(4, 30, 20, .78);
-  --tw: clamp(28px, min(5vw, 7.4vh), 68px); /* hand tile width */
+  --tw: clamp(20px, min(calc((100vw - 48px) / 15.6), 7.4vh), 68px); /* 14 tiles + drawn-tile gap always fit */ /* hand tile width */
   --sw: clamp(17px, min(2.3vw, 3.7vh), 32px); /* small tile width */
   --bw: clamp(12px, min(1.7vw, 2.8vh), 22px); /* opponents' tile backs */
 }
@@ -275,7 +275,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 /* --- small screens --------------------------------------------------------- */
 @media (max-width: 720px) {
   :root {
-    --tw: min(6.6vw, 44px);
+    --tw: clamp(18px, calc((100vw - 34px) / 15.2), 44px);
     --sw: min(4.6vw, 24px);
     --bw: min(3vw, 14px);
   }
